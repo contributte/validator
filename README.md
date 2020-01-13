@@ -15,7 +15,6 @@ Symfony/Validator component integration to Nette Framework.
 | State       | Version      | Branch   | PHP      | Composer                                        |
 |-------------|--------------|----------|----------|-------------------------------------------------|
 | development | `dev-master` | `master` | `>= 7.2` | `minimum-stability: dev`, `prefer-stable: true` |
-| stable      | `^0.1.0`     | `master` | `>= 7.2` |                                                 |
 
 ## Documentation
 

@@ -10,16 +10,20 @@ Symfony/Validator component integration to Nette Framework.
 [![Latest stable](https://img.shields.io/packagist/v/contributte/validator.svg?style=flat-square)](https://packagist.org/packages/contributte/validator)
 [![PHPStan](https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
 
-## Version
+## Discussion / Help
 
-| State       | Version      | Branch   | PHP      | Composer                                        |
-|-------------|--------------|----------|----------|-------------------------------------------------|
-| development | `dev-master` | `master` | `>= 7.2` | `minimum-stability: dev`, `prefer-stable: true` |
+[![Join the chat](https://img.shields.io/gitter/room/contributte/contributte.svg?style=flat-square)](http://bit.ly/ctteg)
 
 ## Documentation
 
 - [Setup](.docs/README.md#setup)
 - [Usage](.docs/README.md#usage)
+
+## Version
+
+| State       | Version      | Branch   | Nette    | PHP      | Composer                                        |
+|-------------|--------------|----------|----------|----------|-------------------------------------------------|
+| development | `dev-master` | `master` | `3.0+`   | `>= 7.2` | `minimum-stability: dev`, `prefer-stable: true` |
 
 ## Maintainers
 

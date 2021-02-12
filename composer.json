@@ -28,7 +28,7 @@
     "doctrine/cache": "^1.10",
     "nette/bootstrap": "^3.0",
     "ninjify/nunjuck": "^0.3.0",
-    "ninjify/qa": "^0.10.0",
+    "ninjify/qa": "^0.12",
     "phpstan/phpstan": "^0.12",
     "phpstan/phpstan-deprecation-rules": "^0.12",
     "phpstan/phpstan-nette": "^0.12",

@@ -1,43 +1,52 @@
-# Validator
+![](https://heatbadger.now.sh/github/readme/contributte/validator/)
 
-Symfony/Validator component integration to Nette Framework.
+<p align=center>
+  <a href="https://github.com/contributte/validator/actions"><img src="https://badgen.net/github/checks/contributte/validator/master?cache=300"></a>
+  <a href="https://coveralls.io/r/contributte/validator"><img src="https://badgen.net/coveralls/c/github/contributte/validator?cache=300"></a>
+  <a href="https://packagist.org/packages/contributte/validator"><img src="https://badgen.net/packagist/dm/contributte/validator"></a>
+  <a href="https://packagist.org/packages/contributte/validator"><img src="https://badgen.net/packagist/v/contributte/validator"></a>
+</p>
+<p align=center>
+  <a href="https://packagist.org/packages/contributte/validator"><img src="https://badgen.net/packagist/php/contributte/validator"></a>
+  <a href="https://github.com/contributte/validator"><img src="https://badgen.net/github/license/contributte/validator"></a>
+  <a href="https://bit.ly/ctteg"><img src="https://badgen.net/badge/support/gitter/cyan"></a>
+  <a href="https://bit.ly/cttfo"><img src="https://badgen.net/badge/support/forum/yellow"></a>
+  <a href="https://contributte.org/partners.html"><img src="https://badgen.net/badge/sponsor/donations/F96854"></a>
+</p>
 
-[![Build Status](https://img.shields.io/travis/contributte/validator.svg?style=flat-square)](https://travis-ci.org/contributte/validator)
-[![Code coverage](https://img.shields.io/coveralls/contributte/validator.svg?style=flat-square)](https://coveralls.io/r/contributte/validator)
-[![Licence](https://img.shields.io/packagist/l/contributte/validator.svg?style=flat-square)](https://packagist.org/packages/contributte/validator)
-[![Downloads this Month](https://img.shields.io/packagist/dm/contributte/validator.svg?style=flat-square)](https://packagist.org/packages/contributte/validator)
-[![Downloads total](https://img.shields.io/packagist/dt/contributte/validator.svg?style=flat-square)](https://packagist.org/packages/contributte/validator)
-[![Latest stable](https://img.shields.io/packagist/v/contributte/validator.svg?style=flat-square)](https://packagist.org/packages/contributte/validator)
-[![PHPStan](https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
+<p align=center>
+Website 🚀 <a href="https://contributte.org">contributte.org</a> | Contact 👨🏻‍💻 <a href="https://f3l1x.io">f3l1x.io</a> | Twitter 🐦 <a href="https://twitter.com/contributte">@contributte</a>
+</p>
 
-## Discussion / Help
+## Usage
 
-[![Join the chat](https://img.shields.io/gitter/room/contributte/contributte.svg?style=flat-square)](http://bit.ly/ctteg)
+To install latest version of `contributte/validator` use [Composer](https://getcomposer.com).
+
+```
+$ composer require contributte/validator
+```
 
 ## Documentation
 
-- [Setup](.docs/README.md#setup)
-- [Usage](.docs/README.md#usage)
+For details on how to use this package, check out our [documentation](.docs).
 
-## Version
+## Versions
 
 | State       | Version      | Branch   | Nette    | PHP      |
 |-------------|--------------|----------|----------|----------|
 | stable      | `^1.0`       | `master` | `3.0+`   | `>= 7.2` |
 | development | `dev-master` | `master` | `3.0+`   | `>= 7.2` |
 
-## Maintainers
 
-<table>
-  <tbody>
-    <tr>
-      <td align="center">
-        <a href="https://github.com/jiripudil">
-            <img width="150" height="150" src="https://avatars1.githubusercontent.com/u/1042159?s=150&v=4">
-        </a>
-        <br/>
-        <a href="https://github.com/jiripudil">Jiří Pudil</a>
-      </td>
-    </tr>
-  </tbody>
-</table>
+## Development
+
+See [how to contribute](https://contributte.org/contributing.html) to this package. This package is currently maintained by these authors.
+
+<a href="https://github.com/jiripudil">
+    <img width="80" height="80" src="https://avatars2.githubusercontent.com/u/1042159?v=3&s=80">
+</a>
+
+-----
+
+Consider to [support](https://contributte.org/partners.html) **contributte** development team.
+Also thank you for using this package.

@@ -22,8 +22,8 @@ Website ðŸš€ <a href="https://contributte.org">contributte.org</a> | Contact ðŸ‘
 
 To install latest version of `contributte/validator` use [Composer](https://getcomposer.com).
 
-```
-$ composer require contributte/validator
+```bash
+composer require contributte/validator
 ```
 
 ## Documentation

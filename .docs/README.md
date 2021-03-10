@@ -3,7 +3,7 @@
 ## Contents
 
 - [Setup](#setup)
-    - [Configuration](#configuration)
+	- [Configuration](#configuration)
 - [Usage](#usage)
 
 ## Setup
@@ -16,9 +16,9 @@ composer require contributte/validator
 
 Register extension:
 
-```yaml
+```neon
 extensions:
-    validator: Contributte\Validator\DI\ValidatorExtension
+	validator: Contributte\Validator\DI\ValidatorExtension
 ```
 
 ### Configuration
@@ -31,25 +31,25 @@ The extension tries to provide sane defaults so that in most common cases, it wo
 
 If you're not satisfied with these defaults, you can add or override some of the options:
 
-```yaml
+```neon
 validator:
-    # configure various mapping loaders
-    mapping:
-        xml: [/path/to/mapping.xml, /path/to/another/mapping.xml]
-        yaml: [/path/to/mapping.yml, /path/to/another/mapping.yml]
-        methods: [loadValidatorMetadataMethodName]
+	# configure various mapping loaders
+	mapping:
+		xml: [/path/to/mapping.xml, /path/to/another/mapping.xml]
+		yaml: [/path/to/mapping.yml, /path/to/another/mapping.yml]
+		methods: [loadValidatorMetadataMethodName]
 
-    # use a different mapping cache implementation
-    cache: Symfony\Component\Cache\Adapter\RedisAdapter(@redis.client)
+	# use a different mapping cache implementation
+	cache: Symfony\Component\Cache\Adapter\RedisAdapter(@redis.client)
 
-    # configure translator and/or translation domain...
-    translation:
-        translator: My\Translator
-        domain: validator
+	# configure translator and/or translation domain...
+	translation:
+		translator: My\Translator
+		domain: validator
 
-    # ...or disable translation entirely
-    translation:
-        translator: false
+	# ...or disable translation entirely
+	translation:
+		translator: false
 ```
 
 ## Usage
@@ -61,12 +61,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class MyServiceThatNeedsToValidateStuff
 {
-    private ValidatorInterface $validator;
+	private ValidatorInterface $validator;
 
-    public function __construct(ValidatorInterface $validator)
-    {
-        $this->validator = $validator;
-    }
+	public function __construct(ValidatorInterface $validator)
+	{
+		$this->validator = $validator;
+	}
 }
 ```
 
@@ -79,20 +79,20 @@ class VatNumber extends \Symfony\Component\Validator\Constraint {}
 
 class VatNumberValidator extends \Symfony\Component\Validator\ConstraintValidator
 {
-    private ViesService $vies;
+	private ViesService $vies;
 
-    public function __construct(ViesService $vies) // <-- this dependency is automatically autowired
-    {
-        $this->vies = $vies;
-    }
+	public function __construct(ViesService $vies) // <-- this dependency is automatically autowired
+	{
+		$this->vies = $vies;
+	}
 
-    public function validate($value,\Symfony\Component\Validator\Constraint $constraint)
-    {
-        if (!$this->vies->validate($value)) {
-            $this->context->buildViolation('Value "{{ value }}" is not a valid EU VAT number.')
-                ->setParameter('{{ value }}', $value)
-                ->addViolation();
-        }
-    }
+	public function validate($value,\Symfony\Component\Validator\Constraint $constraint)
+	{
+		if (!$this->vies->validate($value)) {
+			$this->context->buildViolation('Value "{{ value }}" is not a valid EU VAT number.')
+				->setParameter('{{ value }}', $value)
+				->addViolation();
+		}
+	}
 }
 ```

@@ -78,7 +78,7 @@ final class ValidatorExtension extends CompilerExtension
 	private function setupMapping(ServiceDefinition $validatorBuilder): void
 	{
 		if ($this->config->mapping->annotations) {
-			$validatorBuilder->addSetup('enableAnnotationMapping');
+			$validatorBuilder->addSetup('enableAnnotationMapping', [true]);
 		}
 
 		$validatorBuilder->addSetup('addXmlMappings', [$this->config->mapping->xml]);

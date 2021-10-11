@@ -5,8 +5,8 @@ namespace Contributte\Validator\DI;
 use Contributte\Validator\ContainerConstraintValidatorFactory;
 use Doctrine\Common\Annotations\Reader;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Definitions\Statement;
-use Nette\DI\ServiceDefinition;
 use Nette\Schema\Expect;
 use Nette\Schema\Schema;
 use stdClass;
@@ -52,7 +52,7 @@ final class ValidatorExtension extends CompilerExtension
 	{
 		$containerBuilder = $this->getContainerBuilder();
 
-		$validatorBuilder = $containerBuilder->addDefinition($this->prefix('validatorBuilder'))
+		$validatorBuilder = $containerBuilder->addDefinition($this->prefix('validatorBuilder'), new ServiceDefinition())
 			->setFactory(ValidatorBuilder::class)
 			->addSetup('setConstraintValidatorFactory', [new Statement(ContainerConstraintValidatorFactory::class)])
 			->setAutowired(false);
@@ -62,7 +62,7 @@ final class ValidatorExtension extends CompilerExtension
 		$this->setupLoaders($validatorBuilder);
 		$this->setupObjectInitializers($validatorBuilder);
 
-		$containerBuilder->addDefinition($this->prefix('validator'))
+		$containerBuilder->addDefinition($this->prefix('validator'), new ServiceDefinition())
 			->setType(ValidatorInterface::class)
 			->setFactory([$validatorBuilder, 'getValidator']);
 	}

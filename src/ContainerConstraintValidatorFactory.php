@@ -15,11 +15,10 @@ use function sprintf;
 final class ContainerConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
 {
 
-	/** @var Container */
-	private $container;
+	private Container $container;
 
 	/** @var ConstraintValidatorInterface[] */
-	private $validators;
+	private array $validators;
 
 	public function __construct(Container $container)
 	{
@@ -35,6 +34,7 @@ final class ContainerConstraintValidatorFactory implements ConstraintValidatorFa
 	 */
 	public function getInstance(Constraint $constraint)
 	{
+		/** @var class-string<ConstraintValidatorInterface> $name */
 		$name = $constraint->validatedBy();
 
 		if (!isset($this->validators[$name])) {

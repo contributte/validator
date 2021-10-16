@@ -57,7 +57,6 @@ final class ValidatorExtension extends CompilerExtension
 			->addSetup('setConstraintValidatorFactory', [new Statement(ContainerConstraintValidatorFactory::class)])
 			->setAutowired(false);
 
-		$this->setupMapping($validatorBuilder);
 		$this->setupCache($validatorBuilder);
 		$this->setupLoaders($validatorBuilder);
 		$this->setupObjectInitializers($validatorBuilder);
@@ -73,6 +72,7 @@ final class ValidatorExtension extends CompilerExtension
 		$validatorBuilder = $this->getContainerBuilder()->getDefinition($this->prefix('validatorBuilder'));
 		assert($validatorBuilder instanceof ServiceDefinition);
 		$this->setupTranslator($validatorBuilder);
+		$this->setupMapping($validatorBuilder);
 	}
 
 	private function setupMapping(ServiceDefinition $validatorBuilder): void

@@ -80,7 +80,7 @@ final class ValidatorExtension extends CompilerExtension
 		$validatorBuilder->addSetup('enableAnnotationMapping', [true]);
 
 		if ($this->config->mapping->annotations) {
-			if ($this->getContainerBuilder()->findByType(Reader::class)) {
+			if ((bool) $this->getContainerBuilder()->findByType(Reader::class)) {
 				$validatorBuilder->addSetup('setDoctrineAnnotationReader');
 			} else {
 				$validatorBuilder->addSetup('addDefaultDoctrineAnnotationReader');

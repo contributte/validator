@@ -32,7 +32,7 @@ final class ContainerConstraintValidatorFactory implements ConstraintValidatorFa
 	 * @throws ValidatorException      when the validator class does not exist
 	 * @throws UnexpectedTypeException when the validator is not an instance of ConstraintValidatorInterface
 	 */
-	public function getInstance(Constraint $constraint)
+	public function getInstance(Constraint $constraint): ConstraintValidatorInterface
 	{
 		/** @var class-string<ConstraintValidatorInterface> $name */
 		$name = $constraint->validatedBy();

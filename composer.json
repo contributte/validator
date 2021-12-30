@@ -19,9 +19,9 @@
   "require": {
     "php": ">=7.4",
     "nette/di": "^3.0.1",
-    "symfony/cache": "^5.0",
-    "symfony/config": "^5.0",
-    "symfony/validator": "^5.2"
+    "symfony/cache": "^5.0 || ^6.0",
+    "symfony/config": "^5.0 || ^6.0",
+    "symfony/validator": "^5.2 || ^6.0"
   },
   "require-dev": {
     "doctrine/annotations": "^1.8",

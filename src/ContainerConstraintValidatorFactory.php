@@ -4,6 +4,7 @@ namespace Contributte\Validator;
 
 use Nette\DI\Container;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\ExpressionValidator;
 use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -35,7 +36,9 @@ final class ContainerConstraintValidatorFactory implements ConstraintValidatorFa
 	public function getInstance(Constraint $constraint): ConstraintValidatorInterface
 	{
 		/** @var class-string<ConstraintValidatorInterface> $name */
-		$name = $constraint->validatedBy();
+		$name = $constraint->validatedBy() === 'validator.expression'
+			? ExpressionValidator::class
+			: $constraint->validatedBy();
 
 		if (!isset($this->validators[$name])) {
 			$validator = $this->container->getByType($name, false);

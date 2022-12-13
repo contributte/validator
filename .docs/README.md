@@ -26,7 +26,7 @@ extensions:
 The extension tries to provide sane defaults so that in most common cases, it works out-of-the-box without the need for further configuration:
 
 - validation errors are translated if `symfony/translation` is installed and configured (see [contributte/translation](https://github.com/contributte/translation));
-- annotation mapping is enabled as long as the `doctrine/annotations` package is installed (see [nettrine/annotations](https://github.com/nettrine/annotations));
+- annotation mapping is enabled as long as the `doctrine/annotations` package is installed (see [nettrine/annotations](https://github.com/contributte/doctrine-annotations));
 - mapping cache is stored in `%tempDir%/cache/Symfony.Validator` by default.
 
 If you're not satisfied with these defaults, you can add or override some of the options:

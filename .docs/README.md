@@ -25,8 +25,8 @@ extensions:
 
 The extension tries to provide sane defaults so that in most common cases, it works out-of-the-box without the need for further configuration:
 
+- attribute mapping is enabled by default;
 - validation errors are translated if `symfony/translation` is installed and configured (see [contributte/translation](https://github.com/contributte/translation));
-- annotation mapping is enabled as long as the `doctrine/annotations` package is installed (see [nettrine/annotations](https://github.com/contributte/doctrine-annotations));
 - mapping cache is stored in `%tempDir%/cache/Symfony.Validator` by default.
 
 If you're not satisfied with these defaults, you can add or override some of the options:
@@ -72,18 +72,16 @@ final class MyServiceThatNeedsToValidateStuff
 
 ### Custom constraint validators
 
-If you implement custom constrains and constraint validators, this extension makes sure that all dependencies of the validator constructor are autowired and everything just works:
+If you implement custom constraints and constraint validators, this extension makes sure that all dependencies of the validator constructor are autowired and everything just works:
 
 ```php
 class VatNumber extends \Symfony\Component\Validator\Constraint {}
 
 class VatNumberValidator extends \Symfony\Component\Validator\ConstraintValidator
 {
-	private ViesService $vies;
-
-	public function __construct(ViesService $vies) // <-- this dependency is automatically autowired
-	{
-		$this->vies = $vies;
+	public function __construct(
+		private ViesService $vies, // <-- this dependency is automatically autowired
+	) {
 	}
 
 	public function validate($value,\Symfony\Component\Validator\Constraint $constraint)

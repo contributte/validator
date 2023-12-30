@@ -3,7 +3,6 @@
 namespace Contributte\Validator\DI;
 
 use Contributte\Validator\ContainerConstraintValidatorFactory;
-use Doctrine\Common\Annotations\Reader;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Definitions\ServiceDefinition;
 use Nette\DI\Definitions\Statement;
@@ -16,7 +15,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ValidatorBuilder;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use function assert;
-use function interface_exists;
 use function is_string;
 
 /**
@@ -29,7 +27,7 @@ final class ValidatorExtension extends CompilerExtension
 	{
 		return Expect::structure([
 			'mapping' => Expect::structure([
-				'annotations' => Expect::bool(interface_exists(Reader::class)),
+				'attributes' => Expect::bool(true),
 				'xml' => Expect::listOf(Expect::string()->dynamic()),
 				'yaml' => Expect::listOf(Expect::string()->dynamic()),
 				'methods' => Expect::listOf(Expect::string()->dynamic()),
@@ -77,14 +75,8 @@ final class ValidatorExtension extends CompilerExtension
 
 	private function setupMapping(ServiceDefinition $validatorBuilder): void
 	{
-		$validatorBuilder->addSetup('enableAnnotationMapping', [true]);
-
-		if ($this->config->mapping->annotations) {
-			if ((bool) $this->getContainerBuilder()->findByType(Reader::class)) {
-				$validatorBuilder->addSetup('setDoctrineAnnotationReader');
-			} else {
-				$validatorBuilder->addSetup('addDefaultDoctrineAnnotationReader');
-			}
+		if ($this->config->mapping->attributes) {
+			$validatorBuilder->addSetup('enableAttributeMapping');
 		}
 
 		$validatorBuilder->addSetup('addXmlMappings', [$this->config->mapping->xml]);

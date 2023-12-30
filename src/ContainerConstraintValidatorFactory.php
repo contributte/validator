@@ -16,14 +16,13 @@ use function sprintf;
 final class ContainerConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
 {
 
-	private Container $container;
-
 	/** @var ConstraintValidatorInterface[] */
 	private array $validators;
 
-	public function __construct(Container $container)
+	public function __construct(
+		private readonly Container $container,
+	)
 	{
-		$this->container = $container;
 		$this->validators = [];
 	}
 

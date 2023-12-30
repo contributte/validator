@@ -36,16 +36,16 @@ final class ValidatorExtensionTest extends TestCase
 		Assert::type(ValidatorInterface::class, $validator);
 	}
 
-	public function testAnnotationMapping(): void
+	public function testAttributesMapping(): void
 	{
 		$container = $this->createContainer([
 			'mapping' => [
-				'annotations' => true,
+				'attributes' => true,
 			],
 		], __METHOD__);
 
-		$this->assertValidatorBuilderProperty($container, 'annotationReader', static function ($value): void {
-			Assert::type(Reader::class, $value);
+		$this->assertValidatorBuilderProperty($container, 'enableAttributeMapping', static function ($value): void {
+			Assert::true($value);
 		});
 	}
 

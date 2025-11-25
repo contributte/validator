@@ -184,7 +184,6 @@ final class ValidatorExtensionTest extends TestCase
 	{
 		$validatorBuilder = $container->getService('validator.validatorBuilder');
 		$property = new ReflectionProperty($validatorBuilder, $propertyName);
-		$property->setAccessible(true);
 		$value = $property->getValue($validatorBuilder);
 
 		$assertion($value);

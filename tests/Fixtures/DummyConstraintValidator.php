@@ -9,19 +9,16 @@ use Symfony\Component\Validator\ConstraintValidator;
 final class DummyConstraintValidator extends ConstraintValidator
 {
 
-	/** @var stdClass */
-	public $dependency;
+	public stdClass $dependency;
 
 	public function __construct(stdClass $dependency)
 	{
 		$this->dependency = $dependency;
 	}
 
-	/**
-	 * @param mixed $value
-	 */
-	public function validate($value, Constraint $constraint): void
+	public function validate(mixed $value, Constraint $constraint): void
 	{
+		// Dummy implementation for testing purposes
 	}
 
 }

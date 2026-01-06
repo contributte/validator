@@ -64,7 +64,6 @@ final class ValidatorExtension extends CompilerExtension
 			->setFactory([$validatorBuilder, 'getValidator']);
 	}
 
-
 	public function beforeCompile(): void
 	{
 		$validatorBuilder = $this->getContainerBuilder()->getDefinition($this->prefix('validatorBuilder'));

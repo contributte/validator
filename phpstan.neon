@@ -1,5 +1,32 @@
 includes:
-	- vendor/phpstan/phpstan-deprecation-rules/rules.neon
-	- vendor/phpstan/phpstan-nette/extension.neon
-	- vendor/phpstan/phpstan-nette/rules.neon
-	- vendor/phpstan/phpstan-strict-rules/rules.neon
+	- vendor/contributte/phpstan/phpstan.neon
+
+parameters:
+	level: max
+	phpVersion: 80200
+
+	scanDirectories:
+		- src
+
+	fileExtensions:
+		- php
+
+	paths:
+		- src
+
+	ignoreErrors:
+		# Legacy code - container methods return mixed/object types
+		-
+			identifier: assign.propertyType
+			path: src/ContainerConstraintValidatorFactory.php
+
+		# Legacy code - Nette Schema returns stdClass with dynamic properties
+		-
+			identifier: property.nonObject
+			path: src/DI/ValidatorExtension.php
+		-
+			identifier: binaryOp.invalid
+			path: src/DI/ValidatorExtension.php
+		-
+			identifier: foreach.nonIterable
+			path: src/DI/ValidatorExtension.php

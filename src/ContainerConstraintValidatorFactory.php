@@ -10,7 +10,6 @@ use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use function class_exists;
-use function get_class;
 use function sprintf;
 
 final class ContainerConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
@@ -47,7 +46,7 @@ final class ContainerConstraintValidatorFactory implements ConstraintValidatorFa
 
 			} else {
 				if (!class_exists($name)) {
-					throw new ValidatorException(sprintf('Constraint validator "%s" does not exist or is not enabled. Check the "validatedBy" method in your constraint class "%s".', $name, get_class($constraint)));
+					throw new ValidatorException(sprintf('Constraint validator "%s" does not exist or is not enabled. Check the "validatedBy" method in your constraint class "%s".', $name, $constraint::class));
 				}
 
 				$this->validators[$name] = $this->container->createInstance($name);

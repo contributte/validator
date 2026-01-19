@@ -4,12 +4,8 @@
 
 ## Contents
 
-- [Getting Started](#getting-started)
-  - [Installation](#installation)
-  - [Versions](#versions)
+- [Setup](#setup)
 - [Configuration](#configuration)
-  - [Minimal Configuration](#minimal-configuration)
-  - [Full Configuration](#full-configuration)
 - [Validation](#validation)
   - [Basic Usage](#basic-usage)
   - [Validating Objects](#validating-objects)
@@ -41,79 +37,48 @@
   - [Cascading Validation](#cascading-validation)
   - [Expression Constraint](#expression-constraint)
 
-## Getting Started
+## Setup
 
-### Installation
-
-Require the package via Composer:
+Install package:
 
 ```bash
 composer require contributte/validator
 ```
 
-### Versions
-
-| State  | Version       | Branch | Nette  | PHP    | Symfony        |
-|--------|---------------|--------|--------|--------|----------------|
-| stable | `^2.0`        | master | `3.0+` | `>=8.2`| `6.4+`, `7.0+`, `8.0+` |
-
-## Configuration
-
-### Minimal Configuration
-
-Register the extension in your NEON configuration file:
+Register extension:
 
 ```neon
 extensions:
     validator: Contributte\Validator\DI\ValidatorExtension
 ```
 
-That's it! The extension provides sensible defaults:
+## Configuration
 
-- **Attribute mapping** is enabled by default
-- **Translation** is auto-detected (if `symfony/translation` is installed)
-- **Cache** is stored in `%tempDir%/cache/Symfony.Validator`
+Minimal configuration:
 
-### Full Configuration
+```neon
+extensions:
+    validator: Contributte\Validator\DI\ValidatorExtension
+```
 
-Here is a complete overview of all available configuration options:
+Full configuration:
 
 ```neon
 validator:
-    # Mapping configuration
     mapping:
-        # Enable PHP attribute-based validation (default: true)
-        attributes: true
+        attributes: true                           # Enable PHP attributes (default: true)
+        xml: []                                    # List of XML mapping files
+        yaml: []                                   # List of YAML mapping files
+        methods: []                                # Static methods providing metadata
 
-        # List of XML mapping files
-        xml:
-            - %appDir%/config/validation.xml
+    loaders: []                                    # Custom constraint loaders
+    objectInitializers: []                         # Object initializers called before validation
 
-        # List of YAML mapping files
-        yaml:
-            - %appDir%/config/validation.yaml
+    cache: Symfony\Component\Cache\Adapter\FilesystemAdapter  # Cache adapter
 
-        # List of static method names that provide validation metadata
-        methods:
-            - loadValidatorMetadata
-
-    # Custom constraint loaders (advanced)
-    loaders: []
-
-    # Object initializers called before validation
-    objectInitializers: []
-
-    # Cache adapter for validation metadata
-    # Options: FilesystemAdapter (default), ArrayAdapter, RedisAdapter, or custom
-    cache: Symfony\Component\Cache\Adapter\FilesystemAdapter
-
-    # Translation configuration
     translation:
-        # Translator service (null = auto-detect, false = disabled)
-        translator: null
-
-        # Translation domain for validation messages
-        domain: validators
+        translator: null                           # Translator service (null = auto-detect, false = disabled)
+        domain: validators                         # Translation domain
 ```
 
 ## Validation

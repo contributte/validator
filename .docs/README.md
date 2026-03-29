@@ -1,185 +1,146 @@
 # Contributte Validator
 
-[Symfony Validator](https://symfony.com/doc/current/validation.html) integration for [Nette Framework](https://nette.org).
+Integration of [Symfony Validator](https://symfony.com/doc/current/validation.html) into Nette Framework.
 
-## Contents
+## Content
 
 - [Setup](#setup)
 - [Configuration](#configuration)
 - [Validation](#validation)
-  - [Basic Usage](#basic-usage)
-  - [Validating Objects](#validating-objects)
-  - [Validating Values](#validating-values)
-  - [Working with Violations](#working-with-violations)
 - [Constraints](#constraints)
-  - [Built-in Constraints](#built-in-constraints)
-  - [Custom Constraints](#custom-constraints)
-  - [Constraint Options](#constraint-options)
 - [Mapping](#mapping)
-  - [Attribute Mapping](#attribute-mapping)
-  - [XML Mapping](#xml-mapping)
-  - [YAML Mapping](#yaml-mapping)
-  - [Method Mapping](#method-mapping)
-  - [Custom Loaders](#custom-loaders)
 - [Translation](#translation)
-  - [Auto-detection](#auto-detection)
-  - [Custom Translator](#custom-translator)
-  - [Translation Domain](#translation-domain)
-  - [Disabling Translation](#disabling-translation)
 - [Caching](#caching)
-  - [Filesystem Cache](#filesystem-cache)
-  - [Redis Cache](#redis-cache)
-  - [Array Cache](#array-cache)
-  - [Disabling Cache](#disabling-cache)
 - [Advanced](#advanced)
-  - [Object Initializers](#object-initializers)
-  - [Validation Groups](#validation-groups)
-  - [Cascading Validation](#cascading-validation)
-  - [Expression Constraint](#expression-constraint)
 
-## Setup
+---
 
-Install package:
+# Setup
 
 ```bash
 composer require contributte/validator
 ```
 
-Register extension:
-
 ```neon
 extensions:
-    validator: Contributte\Validator\DI\ValidatorExtension
+	validator: Contributte\Validator\DI\ValidatorExtension
 ```
+
+The extension provides sensible defaults out of the box:
+
+- **Attribute mapping** is enabled
+- **Translation** is auto-detected (if `symfony/translation` is available)
+- **Cache** is stored in `%tempDir%/cache/Symfony.Validator`
+
+That's all. You don't have to worry about anything else.
 
 ## Configuration
 
-Minimal configuration:
+Minimal configuration. Just register the extension.
 
 ```neon
 extensions:
-    validator: Contributte\Validator\DI\ValidatorExtension
+	validator: Contributte\Validator\DI\ValidatorExtension
 ```
 
 Full configuration:
 
 ```neon
 validator:
-    mapping:
-        attributes: true                           # Enable PHP attributes (default: true)
-        xml: []                                    # List of XML mapping files
-        yaml: []                                   # List of YAML mapping files
-        methods: []                                # Static methods providing metadata
+	mapping:
+		attributes: true                           # Enable PHP attributes (default: true)
+		xml: []                                    # List of XML mapping files
+		yaml: []                                   # List of YAML mapping files
+		methods: []                                # Static methods providing metadata
 
-    loaders: []                                    # Custom constraint loaders
-    objectInitializers: []                         # Object initializers called before validation
+	loaders: []                                    # Custom constraint loaders
+	objectInitializers: []                         # Object initializers called before validation
 
-    cache: Symfony\Component\Cache\Adapter\FilesystemAdapter  # Cache adapter
+	cache: Symfony\Component\Cache\Adapter\FilesystemAdapter  # Cache adapter
 
-    translation:
-        translator: null                           # Translator service (null = auto-detect, false = disabled)
-        domain: validators                         # Translation domain
+	translation:
+		translator: null                           # Translator service (null = auto-detect, false = disabled)
+		domain: null                               # Translation domain
 ```
 
-## Validation
+---
 
-This extension exposes a configured implementation of `Symfony\Component\Validator\Validator\ValidatorInterface` in the DI container.
+# Validation
 
-### Basic Usage
+This extension exposes a configured `Symfony\Component\Validator\Validator\ValidatorInterface` in the DI container.
 
-Inject the validator into your service:
+## Validating objects
 
-```php
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-final class UserService
-{
-    public function __construct(
-        private ValidatorInterface $validator,
-    ) {
-    }
-
-    public function registerUser(User $user): void
-    {
-        $violations = $this->validator->validate($user);
-
-        if (count($violations) > 0) {
-            // Handle validation errors
-            throw new ValidationException($violations);
-        }
-
-        // Proceed with registration...
-    }
-}
-```
-
-### Validating Objects
-
-Define validation rules using PHP attributes on your entity:
+Define validation rules using PHP attributes on your class:
 
 ```php
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class User
 {
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 50)]
-    public string $username;
+	#[Assert\NotBlank]
+	#[Assert\Length(min: 3, max: 50)]
+	public string $username;
 
-    #[Assert\NotBlank]
-    #[Assert\Email]
-    public string $email;
+	#[Assert\NotBlank]
+	#[Assert\Email]
+	public string $email;
 
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 8)]
-    #[Assert\Regex(
-        pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
-        message: 'Password must contain at least one lowercase letter, one uppercase letter, and one digit.',
-    )]
-    public string $password;
+	#[Assert\NotBlank]
+	#[Assert\Length(min: 8)]
+	public string $password;
 
-    #[Assert\PositiveOrZero]
-    public int $age;
+	#[Assert\PositiveOrZero]
+	public int $age;
 }
 ```
 
-Validate the object:
+Inject the validator and validate:
 
 ```php
-$user = new User();
-$user->username = 'ab'; // Too short
-$user->email = 'invalid'; // Invalid email
-$user->password = 'weak'; // Doesn't meet requirements
-$user->age = -5; // Negative
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-$violations = $this->validator->validate($user);
-// Returns 4 violations
+final class UserFacade
+{
+
+	public function __construct(
+		private ValidatorInterface $validator,
+	)
+	{
+	}
+
+	public function register(User $user): void
+	{
+		$violations = $this->validator->validate($user);
+
+		if (count($violations) > 0) {
+			throw new ValidationException($violations);
+		}
+
+		// Proceed with registration...
+	}
+
+}
 ```
 
-### Validating Values
+## Validating values
 
 You can also validate individual values without an object:
 
 ```php
 use Symfony\Component\Validator\Constraints as Assert;
 
-// Validate a single value
-$violations = $this->validator->validate(
-    'invalid-email',
-    new Assert\Email(),
-);
+// Single constraint
+$violations = $this->validator->validate('invalid-email', new Assert\Email());
 
-// Validate with multiple constraints
-$violations = $this->validator->validate(
-    'ab',
-    [
-        new Assert\NotBlank(),
-        new Assert\Length(min: 3),
-    ],
-);
+// Multiple constraints
+$violations = $this->validator->validate('ab', [
+	new Assert\NotBlank(),
+	new Assert\Length(min: 3),
+]);
 ```
 
-### Working with Violations
+## Working with violations
 
 The `validate()` method returns a `ConstraintViolationListInterface`:
 
@@ -187,22 +148,11 @@ The `validate()` method returns a `ConstraintViolationListInterface`:
 $violations = $this->validator->validate($user);
 
 if (count($violations) > 0) {
-    foreach ($violations as $violation) {
-        // Get the property path (e.g., "email", "address.city")
-        $propertyPath = $violation->getPropertyPath();
-
-        // Get the error message
-        $message = $violation->getMessage();
-
-        // Get the invalid value
-        $invalidValue = $violation->getInvalidValue();
-
-        // Get the message template (before translation)
-        $template = $violation->getMessageTemplate();
-
-        // Get the constraint that caused the violation
-        $constraint = $violation->getConstraint();
-    }
+	foreach ($violations as $violation) {
+		$violation->getPropertyPath(); // e.g. "email"
+		$violation->getMessage();      // e.g. "This value is not a valid email address."
+		$violation->getInvalidValue(); // The invalid value
+	}
 }
 ```
 
@@ -212,60 +162,42 @@ Convert violations to an array for API responses:
 $errors = [];
 
 foreach ($violations as $violation) {
-    $errors[$violation->getPropertyPath()][] = $violation->getMessage();
+	$errors[$violation->getPropertyPath()][] = $violation->getMessage();
 }
 
-// Result: ['email' => ['This value is not a valid email address.']]
+// ['email' => ['This value is not a valid email address.']]
 ```
 
-## Constraints
+> See [Validation](https://symfony.com/doc/current/validation.html) in Symfony docs.
 
-### Built-in Constraints
+---
 
-Symfony Validator provides a comprehensive set of built-in constraints. Here are some commonly used ones:
+# Constraints
 
-**Basic Constraints:**
-- `NotBlank` - Value must not be blank
-- `NotNull` - Value must not be null
-- `IsNull` - Value must be null
-- `IsTrue` / `IsFalse` - Value must be true/false
-- `Type` - Value must be of a specific type
+## Built-in constraints
 
-**String Constraints:**
-- `Email` - Valid email address
-- `Length` - String length within range
-- `Url` - Valid URL
-- `Regex` - Matches a regular expression
-- `Uuid` - Valid UUID
+Symfony Validator provides a rich set of built-in constraints:
 
-**Number Constraints:**
-- `Positive` / `PositiveOrZero` - Positive numbers
-- `Negative` / `NegativeOrZero` - Negative numbers
-- `Range` - Value within a range
-- `LessThan` / `GreaterThan` - Comparison constraints
+**Basic:** `NotBlank`, `NotNull`, `IsNull`, `IsTrue`, `IsFalse`, `Type`
 
-**Date Constraints:**
-- `Date` / `DateTime` / `Time` - Valid date/time formats
-- `Timezone` - Valid timezone
+**String:** `Email`, `Length`, `Url`, `Regex`, `Uuid`, `Ip`, `Json`
 
-**Collection Constraints:**
-- `Count` - Collection size
-- `Choice` - Value from a list of choices
-- `All` - Apply constraints to all collection items
-- `Collection` - Validate array keys
+**Number:** `Positive`, `PositiveOrZero`, `Negative`, `NegativeOrZero`, `Range`, `LessThan`, `GreaterThan`
 
-**Other Constraints:**
-- `Valid` - Cascade validation to nested objects
-- `Expression` - Custom expression-based validation
-- `Callback` - Custom callback validation
+**Date:** `Date`, `DateTime`, `Time`, `Timezone`
 
-For a complete list, see the [Symfony Validator Constraints Reference](https://symfony.com/doc/current/reference/constraints.html).
+**Collection:** `Count`, `Choice`, `All`, `Collection`, `UniqueEntity`
 
-### Custom Constraints
+**Other:** `Valid`, `Expression`, `Callback`, `When`
 
-Create your own constraints by extending `Symfony\Component\Validator\Constraint`:
+> [!TIP]
+> For a complete list, see the [Constraints Reference](https://symfony.com/doc/current/reference/constraints.html) in Symfony docs.
 
-**Step 1: Create the Constraint class**
+## Custom constraints
+
+Create your own constraints. The extension **automatically autowires** all dependencies in your custom constraint validators.
+
+**Step 1:** Create the Constraint class.
 
 ```php
 namespace App\Validator;
@@ -275,13 +207,13 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD)]
 final class VatNumber extends Constraint
 {
-    public string $message = 'The value "{{ value }}" is not a valid EU VAT number.';
+
+	public string $message = 'The value "{{ value }}" is not a valid EU VAT number.';
+
 }
 ```
 
-**Step 2: Create the Validator class**
-
-The validator class must be named `{ConstraintName}Validator` and placed in the same namespace:
+**Step 2:** Create the Validator class. It must be named `{ConstraintName}Validator` in the same namespace.
 
 ```php
 namespace App\Validator;
@@ -292,111 +224,78 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 final class VatNumberValidator extends ConstraintValidator
 {
-    public function __construct(
-        private ViesService $viesService, // Dependencies are autowired!
-    ) {
-    }
 
-    public function validate(mixed $value, Constraint $constraint): void
-    {
-        if (!$constraint instanceof VatNumber) {
-            throw new UnexpectedTypeException($constraint, VatNumber::class);
-        }
+	public function __construct(
+		private ViesService $viesService, // <-- this dependency is automatically autowired
+	)
+	{
+	}
 
-        // Allow empty values - use NotBlank for required fields
-        if ($value === null || $value === '') {
-            return;
-        }
+	public function validate(mixed $value, Constraint $constraint): void
+	{
+		if (!$constraint instanceof VatNumber) {
+			throw new UnexpectedTypeException($constraint, VatNumber::class);
+		}
 
-        if (!$this->viesService->isValid($value)) {
-            $this->context->buildViolation($constraint->message)
-                ->setParameter('{{ value }}', $value)
-                ->addViolation();
-        }
-    }
+		if ($value === null || $value === '') {
+			return;
+		}
+
+		if (!$this->viesService->isValid($value)) {
+			$this->context->buildViolation($constraint->message)
+				->setParameter('{{ value }}', $value)
+				->addViolation();
+		}
+	}
+
 }
 ```
 
 > [!IMPORTANT]
-> This extension automatically autowires all dependencies in your custom constraint validators. The `ViesService` in the example above will be injected from the DI container.
+> This extension uses a custom `ContainerConstraintValidatorFactory` that leverages Nette DI container.
+> All dependencies of your constraint validators are automatically resolved. You don't need to register them manually.
 
-**Step 3: Use the Constraint**
+**Step 3:** Use the constraint.
 
 ```php
 use App\Validator\VatNumber;
 
 final class Company
 {
-    #[VatNumber]
-    public string $vatNumber;
+
+	#[VatNumber]
+	public string $vatNumber;
+
 }
 ```
 
-### Constraint Options
+> See [How to Create a Custom Validation Constraint](https://symfony.com/doc/current/validation/custom_constraint.html) in Symfony docs.
 
-You can make your constraints configurable:
+---
 
-```php
-namespace App\Validator;
+# Mapping
 
-use Symfony\Component\Validator\Constraint;
+## Attribute mapping
 
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class ContainsAlphanumeric extends Constraint
-{
-    public string $message = 'The string "{{ string }}" contains invalid characters.';
-    public bool $allowSpaces = false;
-    public int $minLength = 1;
-
-    public function __construct(
-        ?string $message = null,
-        ?bool $allowSpaces = null,
-        ?int $minLength = null,
-        ?array $groups = null,
-        mixed $payload = null,
-    ) {
-        parent::__construct([], $groups, $payload);
-
-        $this->message = $message ?? $this->message;
-        $this->allowSpaces = $allowSpaces ?? $this->allowSpaces;
-        $this->minLength = $minLength ?? $this->minLength;
-    }
-}
-```
-
-Usage:
-
-```php
-#[ContainsAlphanumeric(allowSpaces: true, minLength: 5)]
-public string $code;
-```
-
-## Mapping
-
-### Attribute Mapping
-
-Attribute mapping is enabled by default. Use PHP 8 attributes to define validation rules directly on your classes:
+Enabled by default. Use PHP 8 attributes to define validation rules directly on your classes:
 
 ```php
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class Product
 {
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 255)]
-    public string $name;
 
-    #[Assert\NotBlank]
-    #[Assert\Positive]
-    public float $price;
+	#[Assert\NotBlank]
+	#[Assert\Length(min: 3, max: 255)]
+	public string $name;
 
-    #[Assert\NotBlank]
-    #[Assert\GreaterThanOrEqual(0)]
-    public int $stock;
+	#[Assert\NotBlank]
+	#[Assert\Positive]
+	public float $price;
 
-    // Validate nested object
-    #[Assert\Valid]
-    public Category $category;
+	#[Assert\Valid]
+	public Category $category;
+
 }
 ```
 
@@ -404,20 +303,20 @@ To disable attribute mapping:
 
 ```neon
 validator:
-    mapping:
-        attributes: false
+	mapping:
+		attributes: false
 ```
 
-### XML Mapping
+## XML mapping
 
 Define constraints in XML files for cases where you can't modify entity classes:
 
 ```neon
 validator:
-    mapping:
-        xml:
-            - %appDir%/config/validation/user.xml
-            - %appDir%/config/validation/product.xml
+	mapping:
+		xml:
+			- %appDir%/config/validation/user.xml
+			- %appDir%/config/validation/product.xml
 ```
 
 Example XML mapping file:
@@ -425,94 +324,67 @@ Example XML mapping file:
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <constraint-mapping xmlns="http://symfony.com/schema/dic/constraint-mapping"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping
-        https://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping
+		https://symfony.com/schema/dic/constraint-mapping/constraint-mapping-1.0.xsd">
 
-    <class name="App\Entity\User">
-        <property name="username">
-            <constraint name="NotBlank"/>
-            <constraint name="Length">
-                <option name="min">3</option>
-                <option name="max">50</option>
-            </constraint>
-        </property>
-
-        <property name="email">
-            <constraint name="NotBlank"/>
-            <constraint name="Email">
-                <option name="mode">strict</option>
-            </constraint>
-        </property>
-
-        <property name="roles">
-            <constraint name="Count">
-                <option name="min">1</option>
-            </constraint>
-            <constraint name="All">
-                <option name="constraints">
-                    <constraint name="Choice">
-                        <option name="choices">
-                            <value>ROLE_USER</value>
-                            <value>ROLE_ADMIN</value>
-                            <value>ROLE_MODERATOR</value>
-                        </option>
-                    </constraint>
-                </option>
-            </constraint>
-        </property>
-    </class>
+	<class name="App\Entity\User">
+		<property name="username">
+			<constraint name="NotBlank"/>
+			<constraint name="Length">
+				<option name="min">3</option>
+				<option name="max">50</option>
+			</constraint>
+		</property>
+		<property name="email">
+			<constraint name="NotBlank"/>
+			<constraint name="Email"/>
+		</property>
+	</class>
 </constraint-mapping>
 ```
 
-### YAML Mapping
+## YAML mapping
 
 Define constraints in YAML files:
 
 ```neon
 validator:
-    mapping:
-        yaml:
-            - %appDir%/config/validation.yaml
+	mapping:
+		yaml:
+			- %appDir%/config/validation.yaml
 ```
 
 Example YAML mapping file:
 
 ```yaml
 App\Entity\User:
-    properties:
-        username:
-            - NotBlank: ~
-            - Length:
-                min: 3
-                max: 50
-
-        email:
-            - NotBlank: ~
-            - Email:
-                mode: strict
-
-        password:
-            - NotBlank: ~
-            - Length:
-                min: 8
-            - Regex:
-                pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
-                message: 'Password must contain mixed case and numbers.'
+	properties:
+		username:
+			- NotBlank: ~
+			- Length:
+				min: 3
+				max: 50
+		email:
+			- NotBlank: ~
+			- Email:
+				mode: strict
+		password:
+			- NotBlank: ~
+			- Length:
+				min: 8
 ```
 
-### Method Mapping
+## Method mapping
 
 For dynamic constraints, use a static method in your class:
 
 ```neon
 validator:
-    mapping:
-        methods:
-            - loadValidatorMetadata
+	mapping:
+		methods:
+			- loadValidatorMetadata
 ```
-
-Implement the method in your entity:
 
 ```php
 use Symfony\Component\Validator\Constraints as Assert;
@@ -520,35 +392,30 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 final class User
 {
-    public string $username;
-    public string $email;
-    public array $roles;
 
-    public static function loadValidatorMetadata(ClassMetadata $metadata): void
-    {
-        $metadata->addPropertyConstraint('username', new Assert\NotBlank());
-        $metadata->addPropertyConstraint('username', new Assert\Length(min: 3, max: 50));
+	public string $username;
+	public string $email;
 
-        $metadata->addPropertyConstraint('email', new Assert\NotBlank());
-        $metadata->addPropertyConstraint('email', new Assert\Email(mode: Assert\Email::VALIDATION_MODE_STRICT));
+	public static function loadValidatorMetadata(ClassMetadata $metadata): void
+	{
+		$metadata->addPropertyConstraint('username', new Assert\NotBlank());
+		$metadata->addPropertyConstraint('username', new Assert\Length(min: 3, max: 50));
 
-        // Add constraints conditionally
-        if (getenv('STRICT_VALIDATION')) {
-            $metadata->addPropertyConstraint('roles', new Assert\Count(min: 1));
-        }
-    }
+		$metadata->addPropertyConstraint('email', new Assert\NotBlank());
+		$metadata->addPropertyConstraint('email', new Assert\Email());
+	}
+
 }
 ```
 
-### Custom Loaders
+## Custom loaders
 
-For advanced scenarios, you can create custom metadata loaders:
+For advanced scenarios, you can register custom metadata loaders:
 
 ```neon
 validator:
-    loaders:
-        - App\Validator\Loader\DatabaseLoader
-        - App\Validator\Loader\ApiLoader(@httpClient)
+	loaders:
+		- App\Validator\Loader\DatabaseLoader
 ```
 
 ```php
@@ -559,34 +426,41 @@ use Symfony\Component\Validator\Mapping\Loader\LoaderInterface;
 
 final class DatabaseLoader implements LoaderInterface
 {
-    public function __construct(
-        private Database $database,
-    ) {
-    }
 
-    public function loadClassMetadata(ClassMetadata $metadata): bool
-    {
-        // Load constraints from database
-        $rules = $this->database->table('validation_rules')
-            ->where('class', $metadata->getClassName())
-            ->fetchAll();
+	public function __construct(
+		private Database $database,
+	)
+	{
+	}
 
-        foreach ($rules as $rule) {
-            // Apply constraints dynamically
-        }
+	public function loadClassMetadata(ClassMetadata $metadata): bool
+	{
+		// Load constraints from database dynamically
+		$rules = $this->database->table('validation_rules')
+			->where('class', $metadata->getClassName())
+			->fetchAll();
 
-        return count($rules) > 0;
-    }
+		foreach ($rules as $rule) {
+			// Apply constraints...
+		}
+
+		return count($rules) > 0;
+	}
+
 }
 ```
 
-## Translation
+> See [Loading Class Metadata](https://symfony.com/doc/current/validation.html#loading-class-metadata) in Symfony docs.
+
+---
+
+# Translation
 
 Validation error messages can be translated using Symfony's translation component.
 
-### Auto-detection
+## Auto-detection
 
-If you have `symfony/translation` installed and a translator service is available in the container (e.g., via [contributte/translation](https://github.com/contributte/translation)), it will be auto-detected and used:
+If you have `symfony/translation` installed and a translator service is available in the container (e.g. via [contributte/translation](https://github.com/contributte/translation)), it will be auto-detected and used automatically.
 
 ```bash
 composer require contributte/translation
@@ -594,143 +468,83 @@ composer require contributte/translation
 
 ```neon
 extensions:
-    translation: Contributte\Translation\DI\TranslationExtension
+	translation: Contributte\Translation\DI\TranslationExtension
 
 translation:
-    locales:
-        default: en
-        fallback: [en]
-    dirs:
-        - %appDir%/locale
+	locales:
+		default: en
+		fallback: [en]
+	dirs:
+		- %appDir%/locale
 ```
 
-### Custom Translator
+## Custom translator
 
 Specify a custom translator service:
 
 ```neon
 validator:
-    translation:
-        translator: @myCustomTranslator
+	translation:
+		translator: @myCustomTranslator
 ```
 
-Or create a new translator instance:
-
-```neon
-validator:
-    translation:
-        translator: App\Translation\MyTranslator(@someService)
-```
-
-### Translation Domain
+## Translation domain
 
 Set a custom translation domain for validation messages:
 
 ```neon
 validator:
-    translation:
-        domain: validators
+	translation:
+		domain: validators
 ```
 
-Create translation files with your domain. For example, `locale/validators.en.neon`:
-
-```neon
-This value should not be blank.: Please fill in this field.
-This value is not a valid email address.: Please enter a valid email address.
-This value is too short. It should have {{ limit }} character or more.|This value is too short. It should have {{ limit }} characters or more.: Please enter at least {{ limit }} characters.
-```
-
-### Disabling Translation
+## Disabling translation
 
 To disable translation entirely:
 
 ```neon
 validator:
-    translation:
-        translator: false
+	translation:
+		translator: false
 ```
 
-## Caching
+---
 
-Validation metadata (constraints defined on classes) is cached to improve performance. The cache stores the parsed constraint information so it doesn't need to be re-read on every request.
+# Caching
 
-### Filesystem Cache
+Validation metadata (constraints defined on classes) is cached to improve performance.
 
-The default cache stores metadata in the filesystem:
+By default, metadata is cached in `%tempDir%/cache/Symfony.Validator/` using `FilesystemAdapter`.
+
+**Redis cache:**
 
 ```neon
 validator:
-    cache: Symfony\Component\Cache\Adapter\FilesystemAdapter
+	cache: Symfony\Component\Cache\Adapter\RedisAdapter(@redis.client, 'validator')
 ```
 
-This stores cache files in `%tempDir%/cache/Symfony.Validator/`.
-
-### Redis Cache
-
-For distributed applications or better performance:
-
-```neon
-services:
-    redis.client: Redis()::connect('127.0.0.1', 6379)
-
-validator:
-    cache: Symfony\Component\Cache\Adapter\RedisAdapter(@redis.client, 'validator')
-```
-
-### Array Cache
-
-For testing or development, use in-memory cache (not persisted):
+**Array cache** (for testing):
 
 ```neon
 validator:
-    cache: Symfony\Component\Cache\Adapter\ArrayAdapter
+	cache: Symfony\Component\Cache\Adapter\ArrayAdapter
 ```
 
-### Disabling Cache
-
-To disable caching entirely (not recommended for production):
+**Disable cache:**
 
 ```neon
 validator:
-    cache: null
+	cache: null
 ```
 
-## Advanced
+> [!IMPORTANT]
+> You should always use cache for production environment. It can significantly improve performance of your application.
 
-### Object Initializers
+---
 
-Object initializers are called before validation. Use them to prepare objects:
+# Advanced
 
-```neon
-validator:
-    objectInitializers:
-        - App\Validator\Initializer\DoctrineInitializer
-```
-
-```php
-namespace App\Validator\Initializer;
-
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Validator\ObjectInitializerInterface;
-
-final class DoctrineInitializer implements ObjectInitializerInterface
-{
-    public function __construct(
-        private EntityManagerInterface $entityManager,
-    ) {
-    }
-
-    public function initialize(object $object): void
-    {
-        // Initialize lazy-loaded Doctrine proxies before validation
-        if ($object instanceof \Doctrine\Persistence\Proxy) {
-            $object->__load();
-        }
-    }
-}
-```
-
-### Validation Groups
+## Validation groups
 
 Use validation groups to apply different constraints in different contexts:
 
@@ -739,33 +553,32 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class User
 {
-    #[Assert\NotBlank(groups: ['registration', 'profile'])]
-    #[Assert\Email(groups: ['registration', 'profile'])]
-    public string $email;
 
-    #[Assert\NotBlank(groups: ['registration'])]
-    #[Assert\Length(min: 8, groups: ['registration', 'password_change'])]
-    public string $password;
+	#[Assert\NotBlank(groups: ['registration', 'profile'])]
+	#[Assert\Email(groups: ['registration', 'profile'])]
+	public string $email;
 
-    #[Assert\NotBlank(groups: ['profile'])]
-    public string $name;
+	#[Assert\NotBlank(groups: ['registration'])]
+	#[Assert\Length(min: 8, groups: ['registration', 'password_change'])]
+	public string $password;
+
+	#[Assert\NotBlank(groups: ['profile'])]
+	public string $name;
+
 }
 ```
 
-Validate with specific groups:
-
 ```php
-// Only validate 'registration' group constraints
+// Only validate 'registration' group
 $violations = $this->validator->validate($user, null, ['registration']);
-
-// Validate 'Default' group (constraints without explicit groups)
-$violations = $this->validator->validate($user, null, ['Default']);
 
 // Validate multiple groups
 $violations = $this->validator->validate($user, null, ['registration', 'strict']);
 ```
 
-### Cascading Validation
+> See [Validation Groups](https://symfony.com/doc/current/validation/groups.html) in Symfony docs.
+
+## Cascading validation
 
 Use `#[Assert\Valid]` to validate nested objects:
 
@@ -774,79 +587,75 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class Order
 {
-    #[Assert\NotBlank]
-    public string $orderNumber;
 
-    #[Assert\Valid] // Validates the Address object
-    public Address $shippingAddress;
+	#[Assert\Valid]
+	public Address $shippingAddress;
 
-    #[Assert\Valid] // Validates each item in the collection
-    #[Assert\Count(min: 1)]
-    public array $items;
-}
+	#[Assert\Valid]
+	#[Assert\Count(min: 1)]
+	public array $items;
 
-final class Address
-{
-    #[Assert\NotBlank]
-    public string $street;
-
-    #[Assert\NotBlank]
-    public string $city;
-
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 10)]
-    public string $postalCode;
-}
-
-final class OrderItem
-{
-    #[Assert\NotBlank]
-    public string $productId;
-
-    #[Assert\Positive]
-    public int $quantity;
 }
 ```
 
-### Expression Constraint
+> See [Validating Object Constraints](https://symfony.com/doc/current/validation.html#validating-object-constraints) in Symfony docs.
 
-Use the Expression constraint for complex validation logic:
+## Object initializers
+
+Object initializers are called before validation. Use them to prepare objects:
+
+```neon
+validator:
+	objectInitializers:
+		- App\Validator\Initializer\DoctrineInitializer
+```
 
 ```php
-use Symfony\Component\Validator\Constraints as Assert;
+namespace App\Validator\Initializer;
 
-final class Discount
+use Symfony\Component\Validator\ObjectInitializerInterface;
+
+final class DoctrineInitializer implements ObjectInitializerInterface
 {
-    public string $type; // 'percentage' or 'fixed'
 
-    #[Assert\Positive]
-    #[Assert\Expression(
-        expression: 'this.type != "percentage" or value <= 100',
-        message: 'Percentage discount cannot exceed 100%.',
-    )]
-    public float $value;
+	public function initialize(object $object): void
+	{
+		// Initialize lazy-loaded Doctrine proxies before validation
+		if ($object instanceof \Doctrine\Persistence\Proxy) {
+			$object->__load();
+		}
+	}
+
 }
 ```
+
+## Expression constraint
+
+Use the Expression constraint for complex cross-field validation logic:
 
 ```php
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class Event
 {
-    #[Assert\NotBlank]
-    public \DateTimeInterface $startDate;
 
-    #[Assert\NotBlank]
-    #[Assert\Expression(
-        expression: 'value > this.startDate',
-        message: 'End date must be after start date.',
-    )]
-    public \DateTimeInterface $endDate;
+	#[Assert\NotBlank]
+	public \DateTimeInterface $startDate;
+
+	#[Assert\NotBlank]
+	#[Assert\Expression(
+		expression: 'value > this.startDate',
+		message: 'End date must be after start date.',
+	)]
+	public \DateTimeInterface $endDate;
+
 }
 ```
 
 > [!NOTE]
-> The Expression constraint uses Symfony's ExpressionLanguage component. You may need to install it separately:
+> The Expression constraint requires `symfony/expression-language`:
 > ```bash
 > composer require symfony/expression-language
 > ```
+
+> See [Expression](https://symfony.com/doc/current/reference/constraints/Expression.html) in Symfony docs.
